@@ -1,7 +1,8 @@
 .idea/
 
-.data/
+data/
 
-.models/
-.cifar-10-batches-bin/
-.tmp/
+models/
+cifar-10-batches-bin/
+tmp/
+__pycache__/
