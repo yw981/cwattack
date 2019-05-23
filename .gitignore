@@ -1,0 +1,7 @@
+.idea/
+
+.data/
+
+.models/
+.cifar-10-batches-bin/
+.tmp/
