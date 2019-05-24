@@ -8,6 +8,7 @@
 import tensorflow as tf
 import numpy as np
 import time
+from PIL import Image
 
 from setup_cifar import CIFAR, CIFARModel
 from setup_mnist import MNIST, MNISTModel
@@ -22,12 +23,12 @@ def show(img):
     """
     Show MNSIT digits in the console.
     """
-    remap = "  .*#"+"#"*100
-    img = (img.flatten()+.5)*3
+    remap = "  .*#" + "#" * 100
+    img = (img.flatten() + .5) * 3
     if len(img) != 784: return
     print("START")
     for i in range(28):
-        print("".join([remap[int(round(x))] for x in img[i*28:i*28+28]]))
+        print("".join([remap[int(round(x))] for x in img[i * 28:i * 28 + 28]]))
 
 
 def generate_data(data, samples, targeted=True, start=0, inception=False):
@@ -45,25 +46,26 @@ def generate_data(data, samples, targeted=True, start=0, inception=False):
     for i in range(samples):
         if targeted:
             if inception:
-                seq = random.sample(range(1,1001), 10)
+                seq = random.sample(range(1, 1001), 10)
             else:
                 seq = range(data.test_labels.shape[1])
 
             # 共有seq个标签
             for j in seq:
                 # 标签正确是自己时，不输出
-                if (j == np.argmax(data.test_labels[start+i])) and (inception == False):
+                if (j == np.argmax(data.test_labels[start + i])) and (inception == False):
                     continue
-                inputs.append(data.test_data[start+i])
+                inputs.append(data.test_data[start + i])
                 targets.append(np.eye(data.test_labels.shape[1])[j])
         else:
-            inputs.append(data.test_data[start+i])
-            targets.append(data.test_labels[start+i])
+            inputs.append(data.test_data[start + i])
+            targets.append(data.test_labels[start + i])
 
     inputs = np.array(inputs)
     targets = np.array(targets)
 
     return inputs, targets
+
 
 # 原版
 # if __name__ == "__main__":
@@ -93,10 +95,31 @@ def generate_data(data, samples, targeted=True, start=0, inception=False):
 
 # 测试
 if __name__ == "__main__":
-    with tf.Session() as sess:
-        data, model =  MNIST(), MNISTModel("models/mnist", sess)
-        inputs, targets = generate_data(data, samples=1, targeted=True,start=0, inception=False)
-        print(data.test_data.shape)
-        print(inputs.shape)
-        print(targets.shape)
-        print(targets)
+    # with tf.Session() as sess:
+    #     data, model = MNIST(), MNISTModel("models/mnist", sess)
+    #     # inputs, targets = generate_data(data, samples=1, targeted=True,start=0, inception=False)
+    #     # print(data.test_data.shape)
+    #     # print(inputs.shape)
+    #     # print(targets.shape)
+    #     # print(targets)
+    #     attack = CarliniL2(sess, model, batch_size=9, max_iterations=1000, confidence=0)
+    #     inputs, targets = generate_data(data, samples=1, targeted=True,
+    #                                     start=0, inception=False)
+    #     timestart = time.time()
+    #     # attack返回的adv是np.array
+    #     adv = attack.attack(inputs, targets)
+    #     timeend = time.time()
+    #
+    #     print("Took", timeend - timestart, "seconds to run", len(inputs), "samples.")
+    #
+    #     np.save('adv', adv)
+    #     print(adv.shape)
+
+    adv = np.load('adv.npy')
+    print(adv.shape[0])
+    for i in range(adv.shape[0]):
+        print(adv[i].shape)
+        # 保存成图片
+        Image.fromarray((adv[i].reshape((adv[i].shape[0], adv[i].shape[1])) + 0.5) * 255)\
+            .convert('1').save('adv_'+str(i)+'.bmp')
+
