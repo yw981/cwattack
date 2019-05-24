@@ -6,3 +6,10 @@ models/
 cifar-10-batches-bin/
 tmp/
 __pycache__/
+*.npy
+**/pic
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.gif
