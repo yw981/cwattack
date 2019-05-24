@@ -49,7 +49,9 @@ def generate_data(data, samples, targeted=True, start=0, inception=False):
             else:
                 seq = range(data.test_labels.shape[1])
 
+            # 共有seq个标签
             for j in seq:
+                # 标签正确是自己时，不输出
                 if (j == np.argmax(data.test_labels[start+i])) and (inception == False):
                     continue
                 inputs.append(data.test_data[start+i])
@@ -63,28 +65,38 @@ def generate_data(data, samples, targeted=True, start=0, inception=False):
 
     return inputs, targets
 
+# 原版
+# if __name__ == "__main__":
+#     with tf.Session() as sess:
+#         data, model =  MNIST(), MNISTModel("models/mnist", sess)
+#         # data, model =  CIFAR(), CIFARModel("models/cifar", sess)
+#         attack = CarliniL2(sess, model, batch_size=9, max_iterations=1000, confidence=0)
+#         # attack = CarliniL0(sess, model, max_iterations=1000, initial_const=10,largest_const=15)
+#
+#         inputs, targets = generate_data(data, samples=1, targeted=True,
+#                                         start=0, inception=False)
+#         timestart = time.time()
+#         adv = attack.attack(inputs, targets)
+#         timeend = time.time()
+#
+#         print("Took",timeend-timestart,"seconds to run",len(inputs),"samples.")
+#
+#         for i in range(len(adv)):
+#             print("Valid:")
+#             show(inputs[i])
+#             print("Adversarial:")
+#             show(adv[i])
+#
+#             print("Classification:", model.model.predict(adv[i:i+1]))
+#
+#             print("Total distortion:", np.sum((adv[i]-inputs[i])**2)**.5)
 
+# 测试
 if __name__ == "__main__":
     with tf.Session() as sess:
-        # data, model =  MNIST(), MNISTModel("models/mnist", sess)
-        data, model =  CIFAR(), CIFARModel("models/cifar", sess)
-        # attack = CarliniL2(sess, model, batch_size=9, max_iterations=1000, confidence=0)
-        attack = CarliniL0(sess, model, max_iterations=1000, initial_const=10,largest_const=15)
-
-        inputs, targets = generate_data(data, samples=1, targeted=True,
-                                        start=0, inception=False)
-        timestart = time.time()
-        adv = attack.attack(inputs, targets)
-        timeend = time.time()
-        
-        print("Took",timeend-timestart,"seconds to run",len(inputs),"samples.")
-
-        for i in range(len(adv)):
-            print("Valid:")
-            show(inputs[i])
-            print("Adversarial:")
-            show(adv[i])
-            
-            print("Classification:", model.model.predict(adv[i:i+1]))
-
-            print("Total distortion:", np.sum((adv[i]-inputs[i])**2)**.5)
+        data, model =  MNIST(), MNISTModel("models/mnist", sess)
+        inputs, targets = generate_data(data, samples=1, targeted=True,start=0, inception=False)
+        print(data.test_data.shape)
+        print(inputs.shape)
+        print(targets.shape)
+        print(targets)

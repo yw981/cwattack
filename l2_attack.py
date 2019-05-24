@@ -134,6 +134,7 @@ class CarliniL2:
         print('go up to',len(imgs))
         for i in range(0,len(imgs),self.batch_size):
             print('tick',i)
+            # 在列表末尾一次性追加另一个序列中的多个值
             r.extend(self.attack_batch(imgs[i:i+self.batch_size], targets[i:i+self.batch_size]))
         return np.array(r)
 
@@ -142,12 +143,14 @@ class CarliniL2:
         Run the attack on a batch of images and labels.
         """
         def compare(x,y):
+            # isinstance(x是(float, int, np.int64)任一返回True)
             if not isinstance(x, (float, int, np.int64)):
                 x = np.copy(x)
                 if self.TARGETED:
                     x[y] -= self.CONFIDENCE
                 else:
                     x[y] += self.CONFIDENCE
+                # np.argmax返回max(x)的index
                 x = np.argmax(x)
             if self.TARGETED:
                 return x == y
@@ -194,14 +197,17 @@ class CarliniL2:
                 _, l, l2s, scores, nimg = self.sess.run([self.train, self.loss, 
                                                          self.l2dist, self.output, 
                                                          self.newimg])
-
+                # 此处在判断是否是softmax的输出
+                # np.all所有元素都True返回真 np.any任何一个True返回真
                 if np.all(scores>=-.0001) and np.all(scores <= 1.0001):
+                    # numpy.allclose，比较两个数组是否每一元素都相等，默认误差1e - 05
                     if np.allclose(np.sum(scores,axis=1), 1.0, atol=1e-3):
                         if not self.I_KNOW_WHAT_I_AM_DOING_AND_WANT_TO_OVERRIDE_THE_PRESOFTMAX_CHECK:
                             raise Exception("The output of model.predict should return the pre-softmax layer. It looks like you are returning the probability vector (post-softmax). If you are sure you want to do that, set attack.I_KNOW_WHAT_I_AM_DOING_AND_WANT_TO_OVERRIDE_THE_PRESOFTMAX_CHECK = True")
                 
                 # print out the losses every 10%
                 if iteration%(self.MAX_ITERATIONS//10) == 0:
+                    # l1 f l2距离 l = l1 + l2
                     print(iteration,self.sess.run((self.loss,self.loss1,self.loss2)))
 
                 # check if we should abort search if we're getting nowhere.
@@ -211,6 +217,9 @@ class CarliniL2:
                     prev = l
 
                 # adjust the best result found so far
+                # seasons = ['Spring', 'Summer', 'Fall', 'Winter']
+                # list(enumerate(seasons)) enumerate作用
+                # [(0, 'Spring'), (1, 'Summer'), (2, 'Fall'), (3, 'Winter')]
                 for e,(l2,sc,ii) in enumerate(zip(l2s,scores,nimg)):
                     if l2 < bestl2[e] and compare(sc, np.argmax(batchlab[e])):
                         bestl2[e] = l2
