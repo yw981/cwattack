@@ -9,6 +9,8 @@ import tensorflow as tf
 import numpy as np
 import time
 from PIL import Image
+import matplotlib.pyplot as plt
+from skimage import filters, transform
 
 from setup_cifar import CIFAR, CIFARModel
 from setup_mnist import MNIST, MNISTModel
@@ -93,6 +95,24 @@ def generate_data(data, samples, targeted=True, start=0, inception=False):
 #
 #             print("Total distortion:", np.sum((adv[i]-inputs[i])**2)**.5)
 
+def show_images(npdata, num_row=10):
+    fig = plt.figure()
+    plt.subplots_adjust(wspace=1, hspace=1)
+    rows = npdata.shape[0] // num_row + 1  # 加一行对比
+    for i in range(npdata.shape[0]):
+        img = npdata[i].reshape([28, 28])
+        posp = fig.add_subplot(rows, num_row, i + 1)
+        # plt.title('%d : %d -> %d %.2f' % (i, labels[i], error_preds[i], error_scores[i]))
+        posp.imshow(img, cmap=plt.cm.gray)
+
+    for i in range(num_row):
+        dif = npdata[i + num_row].reshape([28, 28]) - npdata[i].reshape([28, 28])
+        posp = fig.add_subplot(rows, num_row, num_row * 2 + i + 1)
+        posp.imshow(dif, cmap=plt.cm.gray)
+
+    plt.show()
+
+
 # 测试
 if __name__ == "__main__":
     with tf.Session() as sess:
@@ -117,23 +137,67 @@ if __name__ == "__main__":
         # np.save('adv', adv)
         # print(adv.shape)
 
+        np.random.seed(1234)
         # #=========测试攻击效果
         adv = np.load('adv.npy')
-        print(type(adv))
-        print(adv.shape)
+        # 取正常图像做实验，通过噪声、高斯、平移、旋转、缩放、剪切
+        # adv = data.test_data[:9,:,:]
+        # 取OOD，纯噪声图像
+        # adv = np.random.randn(9, 28, 28, 1)
+
+        # #=========给生成的对抗样本加一些随机噪声
+
+        # noise = np.random.rand(adv.shape[0], 28, 28, 1)
+        # # adv样本0.8 0.996
+        # noise[noise < 0.996] = 0
+        # nadv = adv + noise
+        # #=======增加噪声结束，若用噪声图像，请用nadv
+
+        # #=========给生成的对抗样本加高斯过滤
+        # sigma = 0.5
+        # nadv = []
+        # for i in range(adv.shape[0]):
+        #     ge = filters.gaussian(adv[i], sigma)
+        #     nadv.append(ge)
+        # nadv = np.array(nadv)
+        # #=======高斯过滤结束，请用nadv
+
+        # #=========对抗样本AffineTransform
+        nadv = []
+        # tform = transform.AffineTransform(translation=(1, 0)) # 平移（x,y) x正水平向右，y正竖直向上
+        tform = transform.AffineTransform(scale=(0.98, 0.98))  # scale : (sx, sy) 缩放，x,y的比例
+        # tform = transform.AffineTransform(rotation=-3.14/24) # 逆时针旋转，弧度，绕左上角顶点
+        # tform = transform.AffineTransform(shear=3.14/24)
+        for i in range(adv.shape[0]):
+            ge = transform.warp((adv[i] + 0.5), tform)
+            nadv.append(ge - 0.5)
+        nadv = np.array(nadv)
+        # #=======AffineTransform结束，请用nadv
+
+
+        # print(np.mean(adv))
+        # print(np.var(adv))
+        # print(np.mean(noise))
+        # print(np.var(noise))
+        # print(adv)
+        # print(adv.shape)
+
         # 因为原作定义的问题，必须model.model
         # advre = model.model.predict(data.test_data)
+
         advre = model.model.predict(adv)
-        print(advre.shape)
-        print(advre)
-        np.save('advre', advre)
+        print(np.argmax(advre, axis=1))
+        nadvre = model.model.predict(nadv)
+        print(nadvre.shape)
+        print(np.argmax(nadvre, axis=1))
+        show_images(np.concatenate((adv, nadv), axis=0), 9)
+        # np.save('advre', advre)
 
 
-    # adv = np.load('adv.npy')
-    # print(adv.shape[0])
-    # for i in range(adv.shape[0]):
-    #     print(adv[i].shape)
-    #     # 保存成图片
-    #     Image.fromarray((adv[i].reshape((adv[i].shape[0], adv[i].shape[1])) + 0.5) * 255)\
-    #         .convert('1').save('adv_'+str(i)+'.bmp')
-
+        # adv = np.load('adv.npy')
+        # print(adv.shape[0])
+        # for i in range(adv.shape[0]):
+        #     print(adv[i].shape)
+        #     # 保存成图片
+        #     Image.fromarray((adv[i].reshape((adv[i].shape[0], adv[i].shape[1])) + 0.5) * 255)\
+        #         .convert('1').save('adv_'+str(i)+'.bmp')
