@@ -95,7 +95,7 @@ class MNISTModel:
 
 if __name__ == '__main__':
     train_data = extract_data("data/train-images-idx3-ubyte.gz", 60)
-    print(train_data[1])
+    print(type(train_data))
     print(train_data.shape)
     train_labels = extract_labels("data/train-labels-idx1-ubyte.gz", 60)
     print(train_labels.shape)

@@ -95,31 +95,45 @@ def generate_data(data, samples, targeted=True, start=0, inception=False):
 
 # 测试
 if __name__ == "__main__":
-    # with tf.Session() as sess:
-    #     data, model = MNIST(), MNISTModel("models/mnist", sess)
-    #     # inputs, targets = generate_data(data, samples=1, targeted=True,start=0, inception=False)
-    #     # print(data.test_data.shape)
-    #     # print(inputs.shape)
-    #     # print(targets.shape)
-    #     # print(targets)
-    #     attack = CarliniL2(sess, model, batch_size=9, max_iterations=1000, confidence=0)
-    #     inputs, targets = generate_data(data, samples=1, targeted=True,
-    #                                     start=0, inception=False)
-    #     timestart = time.time()
-    #     # attack返回的adv是np.array
-    #     adv = attack.attack(inputs, targets)
-    #     timeend = time.time()
-    #
-    #     print("Took", timeend - timestart, "seconds to run", len(inputs), "samples.")
-    #
-    #     np.save('adv', adv)
-    #     print(adv.shape)
+    with tf.Session() as sess:
+        data, model = MNIST(), MNISTModel("models/mnist", sess)
+        # inputs, targets = generate_data(data, samples=1, targeted=True,start=0, inception=False)
+        # print(data.test_data.shape)
+        # print(inputs.shape)
+        # print(targets.shape)
+        # print(targets)
+        # attack = CarliniL2(sess, model, batch_size=9, max_iterations=1000, confidence=0)
 
-    adv = np.load('adv.npy')
-    print(adv.shape[0])
-    for i in range(adv.shape[0]):
-        print(adv[i].shape)
-        # 保存成图片
-        Image.fromarray((adv[i].reshape((adv[i].shape[0], adv[i].shape[1])) + 0.5) * 255)\
-            .convert('1').save('adv_'+str(i)+'.bmp')
+        # #=========执行攻击并生成对抗样本
+        # inputs, targets = generate_data(data, samples=1, targeted=True,
+        #                                 start=0, inception=False)
+        # timestart = time.time()
+        # # attack返回的adv是np.array
+        # adv = attack.attack(inputs, targets)
+        # timeend = time.time()
+        # print("Took", timeend - timestart, "seconds to run", len(inputs), "samples.")
+
+        # #=========保存成np数组，二进制形式
+        # np.save('adv', adv)
+        # print(adv.shape)
+
+        # #=========测试攻击效果
+        adv = np.load('adv.npy')
+        print(type(adv))
+        print(adv.shape)
+        # 因为原作定义的问题，必须model.model
+        # advre = model.model.predict(data.test_data)
+        advre = model.model.predict(adv)
+        print(advre.shape)
+        print(advre)
+        np.save('advre', advre)
+
+
+    # adv = np.load('adv.npy')
+    # print(adv.shape[0])
+    # for i in range(adv.shape[0]):
+    #     print(adv[i].shape)
+    #     # 保存成图片
+    #     Image.fromarray((adv[i].reshape((adv[i].shape[0], adv[i].shape[1])) + 0.5) * 255)\
+    #         .convert('1').save('adv_'+str(i)+'.bmp')
 
