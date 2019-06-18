@@ -127,13 +127,19 @@ if __name__ == "__main__":
     cifar_test_result = np.load('cifar_test_result.npy')
     cifar_gaussian_test_result = np.load('cifar_gaussian_test_result.npy')
     cifar_rotation_test_result = np.load('cifar_rotation_test_result.npy')
+    cifar_scale_test_result = np.load('cifar_scale_test_result.npy')
+    cifar_translation_test_result = np.load('cifar_translation_test_result.npy')
 
     compare_ood_result('cifar',cifar_test_result)
     compare_ood_result('cifar_gaussian',cifar_gaussian_test_result)
     compare_ood_result('cifar_rotation',cifar_rotation_test_result)
+    compare_ood_result('cifar_scale',cifar_scale_test_result)
+    compare_ood_result('cifar_translation',cifar_translation_test_result)
 
     compare_ood('cifar_gaussian',cifar_test_result,cifar_gaussian_test_result)
     compare_ood('cifar_rotation',cifar_test_result,cifar_rotation_test_result)
+    compare_ood('cifar_scale',cifar_test_result,cifar_scale_test_result)
+    compare_ood('cifar_translation',cifar_test_result,cifar_translation_test_result)
 
     # 再做一组纯噪声
 
