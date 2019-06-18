@@ -69,32 +69,6 @@ def generate_data(data, samples, targeted=True, start=0, inception=False):
     return inputs, targets
 
 
-# 原版
-# if __name__ == "__main__":
-#     with tf.Session() as sess:
-#         data, model =  MNIST(), MNISTModel("models/mnist", sess)
-#         # data, model =  CIFAR(), CIFARModel("models/cifar", sess)
-#         attack = CarliniL2(sess, model, batch_size=9, max_iterations=1000, confidence=0)
-#         # attack = CarliniL0(sess, model, max_iterations=1000, initial_const=10,largest_const=15)
-#
-#         inputs, targets = generate_data(data, samples=1, targeted=True,
-#                                         start=0, inception=False)
-#         timestart = time.time()
-#         adv = attack.attack(inputs, targets)
-#         timeend = time.time()
-#
-#         print("Took",timeend-timestart,"seconds to run",len(inputs),"samples.")
-#
-#         for i in range(len(adv)):
-#             print("Valid:")
-#             show(inputs[i])
-#             print("Adversarial:")
-#             show(adv[i])
-#
-#             print("Classification:", model.model.predict(adv[i:i+1]))
-#
-#             print("Total distortion:", np.sum((adv[i]-inputs[i])**2)**.5)
-
 def show_images(npdata, num_row=10):
     fig = plt.figure()
     plt.subplots_adjust(wspace=1, hspace=1)
@@ -147,10 +121,10 @@ if __name__ == "__main__":
 
         # #=========给生成的对抗样本加一些随机噪声
 
-        # noise = np.random.rand(adv.shape[0], 28, 28, 1)
-        # # adv样本0.8 0.996
-        # noise[noise < 0.996] = 0
-        # nadv = adv + noise
+        noise = np.random.rand(adv.shape[0], 28, 28, 1)
+        # adv样本0.8 0.996
+        noise[noise < 0.996] = 0
+        nadv = adv + noise
         # #=======增加噪声结束，若用噪声图像，请用nadv
 
         # #=========给生成的对抗样本加高斯过滤
@@ -163,15 +137,15 @@ if __name__ == "__main__":
         # #=======高斯过滤结束，请用nadv
 
         # #=========对抗样本AffineTransform
-        nadv = []
-        # tform = transform.AffineTransform(translation=(1, 0)) # 平移（x,y) x正水平向右，y正竖直向上
-        tform = transform.AffineTransform(scale=(0.98, 0.98))  # scale : (sx, sy) 缩放，x,y的比例
+        # nadv = []
+        # # tform = transform.AffineTransform(translation=(1, 0)) # 平移（x,y) x正水平向右，y正竖直向上
+        # # tform = transform.AffineTransform(scale=(0.98, 0.98))  # scale : (sx, sy) 缩放，x,y的比例
         # tform = transform.AffineTransform(rotation=-3.14/24) # 逆时针旋转，弧度，绕左上角顶点
-        # tform = transform.AffineTransform(shear=3.14/24)
-        for i in range(adv.shape[0]):
-            ge = transform.warp((adv[i] + 0.5), tform)
-            nadv.append(ge - 0.5)
-        nadv = np.array(nadv)
+        # # tform = transform.AffineTransform(shear=3.14/24)
+        # for i in range(adv.shape[0]):
+        #     ge = transform.warp((adv[i] + 0.5), tform)
+        #     nadv.append(ge - 0.5)
+        # nadv = np.array(nadv)
         # #=======AffineTransform结束，请用nadv
 
 
