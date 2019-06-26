@@ -1,0 +1,30 @@
+acc = 0.993800
+mnist right count  9938  max  1.0  min  0.5056352  mean  0.99863136  var  0.00035608571  median  1.0
+mnist wrong count  62  max  1.0  min  0.46821204  mean  0.84685624  var  0.02977034  median  0.94132274
+acc = 0.993300
+mnist_gaussian right count  9933  max  1.0  min  0.5124503  mean  0.9984422  var  0.00041573468  median  1.0
+mnist_gaussian wrong count  67  max  0.9999998  min  0.3757315  mean  0.8259027  var  0.034824423  median  0.9329576
+acc = 0.963000
+mnist_rotation right count  9630  max  1.0  min  0.3852792  mean  0.993017  var  0.0018226823  median  1.0
+mnist_rotation wrong count  370  max  1.0  min  0.25297904  mean  0.85371757  var  0.029687967  median  0.9358431
+cifar count  10000  max  1.0  min  0.15063208  mean  0.7575531  var  0.045796055  median  0.80960274
+cifar_gaussian count  10000  max  1.0  min  0.15334143  mean  0.7430029  var  0.0469092  median  0.78622437
+cifar_rotation count  10000  max  0.99999994  min  0.15678786  mean  0.7452097  var  0.04775243  median  0.794556
+cifar_scale count  10000  max  1.0  min  0.18227066  mean  0.7438686  var  0.04687626  median  0.78814876
+cifar_translation count  10000  max  1.0  min  0.1757493  mean  0.75603455  var  0.04627173  median  0.8084643
+[2 2 2 ... 2 2 8]
+[2 2 2 ... 2 2 8]
+cifar_gaussian dif = 0.050200
+[2 2 2 ... 2 2 8]
+[4 2 2 ... 2 2 8]
+cifar_rotation dif = 0.426900
+
+scale
+[2 2 2 ... 2 2 8]
+[2 2 2 ... 2 2 8]
+cifar_scale dif = 0.105300
+
+trans
+[2 2 2 ... 2 2 8]
+[4 3 2 ... 2 2 8]
+cifar_translation dif = 0.181500

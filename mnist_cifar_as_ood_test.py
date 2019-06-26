@@ -98,30 +98,50 @@ def compare_result(label, result):
     eval(label + ' right', right_softmax_scores)
     eval(label + ' wrong', wrong_softmax_scores)
 
+
 def compare_ood_result(label, result):
     cifar_softmax_scores = np.max(softmax(result), axis=1)
     eval(label, cifar_softmax_scores)
 
-def compare_ood(label, origin,variant):
+
+def compare_ood(label, origin, variant):
     amo = np.argmax(origin, axis=1)
     amv = np.argmax(variant, axis=1)
     print(amo)
     print(amv)
     error_indices = (amo != amv)
-    print(label+" dif = %f" % (np.sum(error_indices) / amo.shape[0]))
+    print(label + " dif = %f" % (np.sum(error_indices) / amo.shape[0]))
+
+
+def count_diff(label, origin, variant_arr):
+    re = np.ones(origin.shape[0]).astype(np.bool)
+
+    for variant in variant_arr:
+        tfs = (np.argmax(origin, axis=1) == np.argmax(variant, axis=1))
+        # print(tfs)
+        # re = np.bitwise_and(re,tfs)
+        re = re & tfs
+
+    print(label, np.sum(re), ' out of ', re.shape[0], ' at rate ', np.sum(re) / re.shape[0])
+    # return re
 
 
 # 测试
 if __name__ == "__main__":
     data = MNIST()
     cifar = CIFAR()
-
+    #
     test_result = np.load('test_result.npy')
     test_result_gaussian = np.load('test_result_gaussian.npy')
     test_result_rotation = np.load('test_result_rotation.npy')
+    test_result_scale = np.load('test_result_scale.npy')
+    test_result_translation = np.load('test_result_translation.npy')
     compare_result('mnist', test_result)
     compare_result('mnist_gaussian', test_result_gaussian)
     compare_result('mnist_rotation', test_result_rotation)
+    compare_result('mnist_scale', test_result_scale)
+    compare_result('mnist_translation', test_result_translation)
+    print('\n')
 
     # np.savetxt('softmax_scores.npy', softmax_scores)
     cifar_test_result = np.load('cifar_test_result.npy')
@@ -130,16 +150,27 @@ if __name__ == "__main__":
     cifar_scale_test_result = np.load('cifar_scale_test_result.npy')
     cifar_translation_test_result = np.load('cifar_translation_test_result.npy')
 
-    compare_ood_result('cifar',cifar_test_result)
-    compare_ood_result('cifar_gaussian',cifar_gaussian_test_result)
-    compare_ood_result('cifar_rotation',cifar_rotation_test_result)
-    compare_ood_result('cifar_scale',cifar_scale_test_result)
-    compare_ood_result('cifar_translation',cifar_translation_test_result)
+    compare_ood_result('cifar', cifar_test_result)
+    compare_ood_result('cifar_gaussian', cifar_gaussian_test_result)
+    compare_ood_result('cifar_rotation', cifar_rotation_test_result)
+    compare_ood_result('cifar_scale', cifar_scale_test_result)
+    compare_ood_result('cifar_translation', cifar_translation_test_result)
+    print('\n')
 
-    compare_ood('cifar_gaussian',cifar_test_result,cifar_gaussian_test_result)
-    compare_ood('cifar_rotation',cifar_test_result,cifar_rotation_test_result)
-    compare_ood('cifar_scale',cifar_test_result,cifar_scale_test_result)
-    compare_ood('cifar_translation',cifar_test_result,cifar_translation_test_result)
+    compare_ood('cifar_gaussian', cifar_test_result, cifar_gaussian_test_result)
+    compare_ood('cifar_rotation', cifar_test_result, cifar_rotation_test_result)
+    compare_ood('cifar_scale', cifar_test_result, cifar_scale_test_result)
+    compare_ood('cifar_translation', cifar_test_result, cifar_translation_test_result)
+    print('\n')
+
+    count_diff('mnist_in', test_result,
+               [test_result_gaussian, test_result_rotation, test_result_scale, test_result_translation])
+
+    count_diff('cifar_ood', cifar_test_result,
+               [cifar_gaussian_test_result, cifar_rotation_test_result, cifar_scale_test_result,
+                cifar_translation_test_result])
+
+
 
     # 再做一组纯噪声
 
