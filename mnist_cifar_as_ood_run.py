@@ -5,9 +5,11 @@ from skimage import filters, transform
 from setup_cifar import CIFAR, CIFARModel
 from setup_mnist import MNIST, MNISTModel
 
+
 def eval(label, arr):
     print(label + " count ", arr.shape[0], " max ", np.max(arr), " min ", np.min(arr), " mean ", np.mean(arr), " var ",
           np.var(arr), " median ", np.median(arr))
+
 
 # 测试
 if __name__ == "__main__":
@@ -72,9 +74,10 @@ if __name__ == "__main__":
         #######################NOISE as OOD
         np.random.seed(1234)
         noise = np.random.rand(10000, 28, 28, 1) - 0.5
-        # noise 加高斯过滤 - 出错待查
-        # sigma = 0.5
-        # variant_noise = [filters.gaussian(x, sigma) for x in noise]
+        # noise 加高斯过滤 注意：原数据∈[-0.5,0.5]会出错，加回去
+        sigma = 0.5
+        variant_noise = [filters.gaussian(x + 0.5, sigma) for x in noise]
+        variant_noise = np.array(variant_noise) - 0.5
         #
         # noise 加仿射变换 旋转角度
         # tform = transform.AffineTransform(rotation=-3.14 / 24)  # 逆时针旋转，弧度，绕左上角顶点
@@ -83,10 +86,10 @@ if __name__ == "__main__":
         # noise 加仿射变换 缩放
         # tform = transform.AffineTransform(scale=(1.1, 1.1))
         # noise 加仿射变换 shear
-        tform = transform.AffineTransform(shear=3.14 / 24)
-        print(tform.params)
-        variant_noise = [transform.warp(x, tform) for x in noise]
-        variant_noise = np.reshape(variant_noise, (10000, 28, 28, 1))
+        # tform = transform.AffineTransform(shear=3.14 / 24)
+        # print(tform.params)
+        # variant_noise = [transform.warp(x, tform) for x in noise]
+        # variant_noise = np.reshape(variant_noise, (10000, 28, 28, 1))
 
         test_result = model.model.predict(variant_noise)
 

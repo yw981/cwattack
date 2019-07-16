@@ -103,6 +103,7 @@ def compare_ood_result(label, result):
     cifar_softmax_scores = np.max(softmax(result), axis=1)
     eval(label, cifar_softmax_scores)
 
+
 ###
 # 比较两个结果集不一样的
 ###
@@ -177,14 +178,17 @@ if __name__ == "__main__":
 
     # 再做一组纯噪声
     noise_test_result = np.load('noise_result.npy')
+    noise_gaussian_test_result = np.load('noise_result_gaussian.npy')
     noise_rotation_test_result = np.load('noise_result_rotation.npy')
     noise_scale_test_result = np.load('noise_result_scale.npy')
     noise_translation_test_result = np.load('noise_result_translation.npy')
     compare_ood_result('noise', noise_test_result)
+    compare_ood_result('noise_gaussian', noise_gaussian_test_result)
     compare_ood_result('noise_rotation', noise_rotation_test_result)
     compare_ood_result('noise_scale', noise_scale_test_result)
     compare_ood_result('noise_translation', noise_translation_test_result)
     print('\n')
+    compare_ood('noise_gaussian', noise_test_result, noise_gaussian_test_result)
     compare_ood('noise_rotation', noise_test_result, noise_rotation_test_result)
     compare_ood('noise_scale', noise_test_result, noise_scale_test_result)
     compare_ood('noise_translation', noise_test_result, noise_translation_test_result)
@@ -198,7 +202,7 @@ if __name__ == "__main__":
                 cifar_translation_test_result])
 
     count_diff('noise_ood', noise_test_result,
-               [noise_rotation_test_result, noise_scale_test_result,
+               [noise_gaussian_test_result, noise_rotation_test_result, noise_scale_test_result,
                 noise_translation_test_result])
 
 
