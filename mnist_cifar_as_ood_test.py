@@ -117,7 +117,14 @@ def compare_ood(label, origin, variant):
     print(label + " dif = %f" % (np.sum(error_indices) / amo.shape[0]))
 
 
-def count_diff(label, origin, variant_arr):
+def count_diff(tag, origin, variant_arr):
+    """
+    对比变化，origin预测结果和variant结果数组中，只要有任意不同，就找剔除
+    :param tag: 输出TAG
+    :param origin: 原标签
+    :param variant_arr: 变体标签数组
+    :return:
+    """
     re = np.ones(origin.shape[0]).astype(np.bool)
 
     for variant in variant_arr:
@@ -126,7 +133,8 @@ def count_diff(label, origin, variant_arr):
         # re = np.bitwise_and(re,tfs)
         re = re & tfs
 
-    print(label, np.sum(re), ' out of ', re.shape[0], ' at rate ', np.sum(re) / re.shape[0])
+    # 输出都没变的
+    print(tag, np.sum(re), ' out of ', re.shape[0], ' at rate ', np.sum(re) / re.shape[0])
     # return re
 
 
@@ -167,6 +175,21 @@ if __name__ == "__main__":
     compare_ood('cifar_translation', cifar_test_result, cifar_translation_test_result)
     print('\n')
 
+    # 再做一组纯噪声
+    noise_test_result = np.load('noise_result.npy')
+    noise_rotation_test_result = np.load('noise_result_rotation.npy')
+    noise_scale_test_result = np.load('noise_result_scale.npy')
+    noise_translation_test_result = np.load('noise_result_translation.npy')
+    compare_ood_result('noise', noise_test_result)
+    compare_ood_result('noise_rotation', noise_rotation_test_result)
+    compare_ood_result('noise_scale', noise_scale_test_result)
+    compare_ood_result('noise_translation', noise_translation_test_result)
+    print('\n')
+    compare_ood('noise_rotation', noise_test_result, noise_rotation_test_result)
+    compare_ood('noise_scale', noise_test_result, noise_scale_test_result)
+    compare_ood('noise_translation', noise_test_result, noise_translation_test_result)
+    print('\n')
+
     count_diff('mnist_in', test_result,
                [test_result_gaussian, test_result_rotation, test_result_scale, test_result_translation])
 
@@ -174,8 +197,12 @@ if __name__ == "__main__":
                [cifar_gaussian_test_result, cifar_rotation_test_result, cifar_scale_test_result,
                 cifar_translation_test_result])
 
+    count_diff('noise_ood', noise_test_result,
+               [noise_rotation_test_result, noise_scale_test_result,
+                noise_translation_test_result])
 
 
-    # 再做一组纯噪声
+
+
 
     # np.savetxt('cifar_softmax_scores.npy', cifar_softmax_scores)

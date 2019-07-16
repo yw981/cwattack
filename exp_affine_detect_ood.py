@@ -9,7 +9,7 @@ def eval(label, arr):
     print(label + " count ", arr.shape[0], " max ", np.max(arr), " min ", np.min(arr), " mean ", np.mean(arr), " var ",
           np.var(arr), " median ", np.median(arr))
 
-# 测试
+# 迁移到新的闭源工程！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
 if __name__ == "__main__":
     with tf.Session() as sess:
         model = MNISTModel("models/mnist", sess)
@@ -72,7 +72,8 @@ if __name__ == "__main__":
         #######################NOISE as OOD
         np.random.seed(1234)
         noise = np.random.rand(10000, 28, 28, 1) - 0.5
-        # noise 加高斯过滤 - 出错待查
+        # eval('noise',noise)
+        # noise 加高斯过滤
         # sigma = 0.5
         # variant_noise = [filters.gaussian(x, sigma) for x in noise]
         #
@@ -81,14 +82,12 @@ if __name__ == "__main__":
         # noise 加仿射变换 平移
         # tform = transform.AffineTransform(translation=(2, 2))  # 平移（x,y) x正水平向右，y正竖直向上
         # noise 加仿射变换 缩放
-        # tform = transform.AffineTransform(scale=(1.1, 1.1))
-        # noise 加仿射变换 shear
-        tform = transform.AffineTransform(shear=3.14 / 24)
+        tform = transform.AffineTransform(scale=(1.1, 1.1))
         print(tform.params)
         variant_noise = [transform.warp(x, tform) for x in noise]
         variant_noise = np.reshape(variant_noise, (10000, 28, 28, 1))
 
         test_result = model.model.predict(variant_noise)
 
-        np.save('noise_result_gaussian.npy', test_result)
+        np.save('noise_result_scale.npy', test_result)
         print(test_result.shape)
