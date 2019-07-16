@@ -103,9 +103,13 @@ def compare_ood_result(label, result):
     cifar_softmax_scores = np.max(softmax(result), axis=1)
     eval(label, cifar_softmax_scores)
 
-
+###
+# 比较两个结果集不一样的
+###
 def compare_ood(label, origin, variant):
+    # argmax origin
     amo = np.argmax(origin, axis=1)
+    # argmax variant
     amv = np.argmax(variant, axis=1)
     print(amo)
     print(amv)
