@@ -81,6 +81,8 @@ if __name__ == "__main__":
             if acc > 0.95:
                 print('save #%d' % i)
                 params.append(tfparam)
+                np.save('exp_affine_in_%d.npy' % k, mnist_test_result)
+                print(mnist_test_result.shape)
                 k += 1
                 if k >= 10:
                     break
